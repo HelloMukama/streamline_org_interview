@@ -67,14 +67,14 @@ class PatientController extends Controller
     public function update(Request $request, Patient $patient)
     {
         $validator = Validator::make($request->all(), [
-            'file_number' => 'required|unique:patients,file_number,' . $patient->id,
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'gender' => 'required',
-            'date_of_birth' => 'required|date',
-            'phone_number' => 'required',
-            'next_of_kin_relationship' => 'required',
-            'next_of_kin_phone_number' => 'required',
+            'file_number' => 'sometimes|required|unique:patients,file_number,' . $patient->id,
+            'first_name' => 'sometimes|required',
+            'last_name' => 'sometimes|required',
+            'gender' => 'sometimes|required',
+            'date_of_birth' => 'sometimes|required|date',
+            'phone_number' => 'sometimes|required',
+            'next_of_kin_relationship' => 'sometimes|required',
+            'next_of_kin_phone_number' => 'sometimes|required',
         ]);
 
         if ($validator->fails()) {

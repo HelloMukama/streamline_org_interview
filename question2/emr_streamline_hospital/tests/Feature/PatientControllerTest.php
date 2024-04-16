@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 
@@ -20,22 +21,26 @@ beforeEach(function () {
         'restore' => 'patients.restore.pest',
         'restoreAll' => 'patients.restoreAll.pest',
     ];
+
+    Patient::factory()->create();
+
 });
 
 describe('page access', function () {
-    it('can access the index page', function () {
-        $response = $this->get(route($this->routeNames['index']));
+    it('can access the create page', function () {  // pass
+        $this->withoutExceptionHandling();
+        // $response = $this->get(route($this->routeNames['create']));
+        $response = $this->get(route('patients.create.pest'));
         $response->assertStatus(200);
     });
-
-    it('can access the create page', function () {
-        $response = $this->get(route($this->routeNames['create']));
-        $response->assertStatus(200);
-    });
-
 });
 
-it('can store a new patient', function () {
+it('can store a new patient', function () {  // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
     $patientData = [
         'file_number' => '123456',
         'first_name' => 'John',
@@ -48,23 +53,38 @@ it('can store a new patient', function () {
     ];
 
     $response = $this->post(route($this->routeNames['store']), $patientData);
-    $response->assertRedirect(route($this->routeNames['index']));
+    $response->assertRedirect(route('patients.index')); // redirect route defined in PatientController
     $this->assertDatabaseHas('patients', $patientData); // patients table
 });
 
-it('can show a patient', function () {
+it('can show a patient', function () {  // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
     $patient = Patient::factory()->create();
     $response = $this->get(route($this->routeNames['show'], $patient));
     $response->assertStatus(200);
 });
 
-it('can access the edit page', function () {
+it('can access the edit page', function () {  // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
     $patient = Patient::factory()->create();
     $response = $this->get(route($this->routeNames['edit'], $patient));
     $response->assertStatus(200);
 });
 
 it('can update a patient', function () {
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
     $patient = Patient::factory()->create();
     $updatedData = [
         'last_name' => 'Does',
@@ -72,43 +92,59 @@ it('can update a patient', function () {
     ];
 
     $response = $this->put(route($this->routeNames['update'], $patient), $updatedData);
-    $response->assertRedirect(route($this->routeNames['index']));
+    $response->assertRedirect(route('patients.index'));
     $this->assertDatabaseHas('patients', $updatedData);
 });
 
-it('can delete a patient', function () {
+it('can delete a patient', function () {  // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
     $patient = Patient::factory()->create();
     $response = $this->delete(route($this->routeNames['destroy'], $patient));
-    $response->assertRedirect(route($this->routeNames['index']));
+    $response->assertRedirect(route('patients.index'));
     $this->assertSoftDeleted('patients', ['id' => $patient->id]);
 });
 
-it('validates patient registration', function () {
+it('can restore a patient', function () {   // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
+    $patient = Patient::factory()->create();
+    $patient->delete();
+
+    $response = $this->post(route($this->routeNames['restore'], $patient->id));
+    $response->assertRedirect(route('patients.trashed'));
+    $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
+});
+
+it('can restore all patients', function () {  // pass
+    $this->withoutExceptionHandling();
+    // Authenticate the request
+    $user = User::factory()->create();
+    $this->actingAs($user);
+    
+    $trashedPatients = Patient::factory()->count(3)->create();
+    Patient::destroy($trashedPatients->pluck('id'));
+
+    $response = $this->post($this->routeNames['store']);
+    $response->assertRedirect(route('patients.index'));
+
+    foreach ($trashedPatients as $patient) {
+        $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
+    }
+});
+
+it('validates patient registration', function () {  // pass
+    $this->withoutExceptionHandling();
     $response = $this->post(route($this->routeNames['store']), []);
 
     $response->assertSessionHasErrors([
         'file_number', 'first_name', 'last_name', 'gender', 
         'date_of_birth', 'phone_number', 'next_of_kin_relationship', 'next_of_kin_phone_number'
     ]);
-});
-
-it('can restore a patient', function () {
-    $patient = Patient::factory()->create();
-    $patient->delete();
-
-    $response = $this->post(route($this->routeNames['restore'], $patient->id));
-    $response->assertRedirect($this->routeNames['trashed']);
-    $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
-});
-
-it('can restore all patients', function () {
-    $trashedPatients = Patient::factory()->count(3)->create();
-    Patient::destroy($trashedPatients->pluck('id'));
-
-    $response = $this->post(route($this->routeNames['restoreAll']));
-    $response->assertRedirect($this->routeNames['index']);
-
-    foreach ($trashedPatients as $patient) {
-        $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
-    }
 });

@@ -109,14 +109,14 @@ Route::middleware(['auth'])->group(function () {  // redirect to login if not au
 });
 
 // Begin pest test routes
-Route::get('/patients', [PatientController::class, 'index'])->name('patients.index.pest');
-Route::get('/patients/create', [PatientController::class, 'create'])->name('patients.create.pest');
-Route::post('/patients', [PatientController::class, 'store'])->name('patients.store.pest');
-Route::get('/patients/{patient}', [PatientController::class, 'show'])->name('patients.show.pest');
-Route::get('/patients/{patient}/edit', [PatientController::class, 'edit'])->name('patients.edit.pest');
-Route::put('/patients/{patient}', [PatientController::class, 'update'])->name('patients.update.pest');
-Route::delete('/patients/{patient}', [PatientController::class, 'destroy'])->name('patients.destroy.pest');
-Route::get('/patients/trashed/temp', [PatientController::class, 'trashed'])->name('patients.trashed.pest');
-Route::post('/patients/trashed/temp/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore.pest');
-Route::post('/patients/trashed/temp/restore-all', [PatientController::class, 'restoreAll'])->name('patients.restoreAll.pest');
+Route::get('/patients/pest', [PatientController::class, 'index'])->name('patients.index.pest');
+Route::get('/patients/pest/create', [PatientController::class, 'create'])->name('patients.create.pest');
+Route::post('/patients/pest', [PatientController::class, 'store'])->name('patients.store.pest');
+Route::get('/patients/pest/{patient}', [PatientController::class, 'show'])->name('patients.show.pest');
+Route::get('/patients/pest/{patient}/edit', [PatientController::class, 'edit'])->name('patients.edit.pest');
+Route::put('/patients/pest/{patient}', [PatientController::class, 'update'])->name('patients.update.pest');
+Route::delete('/patients/pest/{patient}', [PatientController::class, 'destroy'])->name('patients.destroy.pest');
+Route::get('/patients/pest/trashed/temp', [PatientController::class, 'trashed'])->name('patients.trashed.pest');
+Route::post('/patients/pest/trashed/temp/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore.pest');
+Route::post('/patients/pest/trashed/temp/restore-all', [PatientController::class, 'restoreAll'])->name('patients.restoreAll.pest');
 // End pest test routes
