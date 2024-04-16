@@ -1,111 +1,159 @@
 <?php
 
+namespace App\Http\Controllers;
+
 use App\Models\Patient;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Models\AuditLog;
+use Illuminate\Support\Facades\Auth;
 
-uses(RefreshDatabase::class);
-
-beforeEach(function () {
-    // test route names
-    $this->routeNames = [
-        'index' => 'patients.index',
-        'create' => 'patients.create',
-        'store' => 'patients.store',
-        'show' => 'patients.show',
-        'edit' => 'patients.edit',
-        'update' => 'patients.update',
-        'destroy' => 'patients.destroy',
-    ];
-});
-
-describe('page access', function () {
-    it('can access the index page', function () {
-        $response = $this->get(route($this->routeNames['index']));
-        $response->assertStatus(200);
-    });
-
-    it('can access the create page', function () {
-        $response = $this->get(route($this->routeNames['create']));
-        $response->assertStatus(200);
-    });
-
-});
-
-it('can store a new patient', function () {
-    $patientData = [
-        'file_number' => '123456',
-        'first_name' => 'John',
-        'last_name' => 'Doe',
-        'gender' => 'male',
-        'date_of_birth' => '1990-01-01',
-        'phone_number' => '1234567890',
-        'next_of_kin_relationship' => 'sibling',
-        'next_of_kin_phone_number' => '0987654321',
-    ];
-
-    $response = $this->post(route($this->routeNames['store']), $patientData);
-    $response->assertRedirect(route($this->routeNames['index']));
-    $this->assertDatabaseHas('patients', $patientData); // patients table
-});
-
-it('can show a patient', function () {
-    $patient = Patient::factory()->create();
-    $response = $this->get(route($this->routeNames['show'], $patient));
-    $response->assertStatus(200);
-});
-
-it('can access the edit page', function () {
-    $patient = Patient::factory()->create();
-    $response = $this->get(route($this->routeNames['edit'], $patient));
-    $response->assertStatus(200);
-});
-
-it('can update a patient', function () {
-    $patient = Patient::factory()->create();
-    $updatedData = [
-        'last_name' => 'Does',
-        'gender' => 'female',
-    ];
-
-    $response = $this->put(route($this->routeNames['update'], $patient), $updatedData);
-    $response->assertRedirect(route($this->routeNames['index']));
-    $this->assertDatabaseHas('patients', $updatedData);
-});
-
-it('can delete a patient', function () {
-    $patient = Patient::factory()->create();
-    $response = $this->delete(route($this->routeNames['destroy'], $patient));
-    $response->assertRedirect(route($this->routeNames['index']));
-    $this->assertSoftDeleted('patients', ['id' => $patient->id]);
-});
-
-it('validates patient registration', function () {
-    $response = $this->post(route($this->routeNames['store']), []);
-
-    $response->assertSessionHasErrors([
-        'file_number', 'first_name', 'last_name', 'gender', 
-        'date_of_birth', 'phone_number', 'next_of_kin_relationship', 'next_of_kin_phone_number'
-    ]);
-});
-
-it('can restore a patient', function () {
-    $patient = Patient::factory()->create();
-    $patient->delete();
-
-    $response = $this->post(route('patients.restore', $patient->id));
-    $response->assertRedirect(route('patients.trashed'));
-    $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
-});
-
-it('can restore all patients', function () {
-    $trashedPatients = Patient::factory()->count(3)->create();
-    Patient::destroy($trashedPatients->pluck('id'));
-
-    $response = $this->post(route('patients.restoreAll'));
-    $response->assertRedirect(route('patients.index'));
-
-    foreach ($trashedPatients as $patient) {
-        $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
+class PatientController extends Controller
+{
+    public function index()
+    {
+        $patients = Patient::all();
+        return view('patients.index', compact('patients'));
     }
-});
+
+    public function create()
+    {
+        return view('patients.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file_number' => 'required|unique:patients',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'gender' => 'required',
+            'date_of_birth' => 'required|date',
+            'phone_number' => 'required',
+            'next_of_kin_relationship' => 'required',
+            'next_of_kin_phone_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $patient = Patient::create($request->all());
+
+        // Log the creation action
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'created',
+            'table_name' => 'patients',
+            'record_id' => $patient->id,
+        ]);
+
+        return redirect()->route('patients.index')
+            ->with('success', 'Patient created successfully.');
+    }
+
+    public function show(Patient $patient)
+    {
+        return view('patients.show', compact('patient'));
+    }
+
+    public function edit(Patient $patient)
+    {
+        return view('patients.edit', compact('patient'));
+    }
+
+    public function update(Request $request, Patient $patient)
+    {
+        $validator = Validator::make($request->all(), [
+            'file_number' => 'required|unique:patients,file_number,' . $patient->id,
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'gender' => 'required',
+            'date_of_birth' => 'required|date',
+            'phone_number' => 'required',
+            'next_of_kin_relationship' => 'required',
+            'next_of_kin_phone_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $patient->update($request->all());
+
+        // Log the update action
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'updated',
+            'table_name' => 'patients',
+            'record_id' => $patient->id,
+        ]);
+
+        return redirect()->route('patients.index')
+            ->with('success', 'Patient updated successfully.');
+    }
+
+    public function destroy(Patient $patient)
+    {
+        $patient->delete();
+
+        // Log the deletion action
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'deleted',
+            'table_name' => 'patients',
+            'record_id' => $patient->id,
+        ]);
+
+        return redirect()->route('patients.index')
+            ->with('success', 'Patient deleted successfully.');
+    }
+
+    public function trashed()
+    {
+        $trashedPatients = Patient::onlyTrashed()->get();
+        return view('patients.trashed', compact('trashedPatients'));
+    }
+
+    public function restore($id) 
+    {
+        // Restore 1 trashed patient
+        Patient::withTrashed()->find($id)->restore();
+
+        // Log the restoration action
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'restored_one',
+            'table_name' => 'patients',
+            'record_id' => $id, // Log the ID of restored patient
+        ]);
+
+        return redirect()->route('patients.trashed')
+            ->with('success', '1 patient restored successfully.');
+    }
+
+    public function restoreAll()
+    {
+        $restoredPatients = Patient::onlyTrashed()->get();
+
+        // Restore all trashed patients
+        Patient::onlyTrashed()->restore();
+        
+        // Log the restoration of all patients action
+        foreach ($restoredPatients as $patient) {
+            AuditLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'restored_all',
+                'table_name' => 'patients',
+                'record_id' => $patient->id, // Log the ID of each restored patient
+            ]);
+        }
+
+        return redirect()->route('patients.index')
+            ->with('success', 'All patients restored successfully.');
+    }
+}

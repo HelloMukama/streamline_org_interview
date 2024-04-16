@@ -46,7 +46,7 @@ it('can store a new patient', function () {
 
     $response = $this->post(route($this->routeNames['store']), $patientData);
     $response->assertRedirect(route($this->routeNames['index']));
-    $this->assertDatabaseHas('patients', $patientData);
+    $this->assertDatabaseHas('patients', $patientData); // patients table
 });
 
 it('can show a patient', function () {
@@ -89,3 +89,23 @@ it('validates patient registration', function () {
     ]);
 });
 
+it('can restore a patient', function () {
+    $patient = Patient::factory()->create();
+    $patient->delete();
+
+    $response = $this->post(route('patients.restore', $patient->id));
+    $response->assertRedirect(route('patients.trashed'));
+    $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
+});
+
+it('can restore all patients', function () {
+    $trashedPatients = Patient::factory()->count(3)->create();
+    Patient::destroy($trashedPatients->pluck('id'));
+
+    $response = $this->post(route('patients.restoreAll'));
+    $response->assertRedirect(route('patients.index'));
+
+    foreach ($trashedPatients as $patient) {
+        $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
+    }
+});
