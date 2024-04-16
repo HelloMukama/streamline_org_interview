@@ -89,6 +89,8 @@ test out other functionalities too
 
 -------------------- Running the Pest tests -----------------------------
 
+Make sure your Apache and MySQL servers are running.
+
 Before running tests, be informed that--
 --the test file is using the Patient Factory to generate sample records
 which means that some results may randomly be duplicated.
