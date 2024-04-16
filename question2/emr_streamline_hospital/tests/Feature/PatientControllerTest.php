@@ -131,7 +131,7 @@ it('can restore all patients', function () {  // pass
     $trashedPatients = Patient::factory()->count(3)->create();
     Patient::destroy($trashedPatients->pluck('id'));
 
-    $response = $this->post($this->routeNames['restoreAll']);
+    $response = $this->post(route('patients.restoreAll.pest'));
     $response->assertRedirect(route('patients.index'));
 
     foreach ($trashedPatients as $patient) {
