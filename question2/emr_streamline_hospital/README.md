@@ -7,3 +7,7 @@
 ## The API Endpoints in action
 
 ![alt apiEndpointsInPostman](https://github.com/HelloMukama/streamline_org_interview/blob/main/question2/emr_streamline_hospital/emr_api_screenshot_in_postman.png)
+
+## The PEST Test success Snapshot
+
+![alt pestTestSuccessSnapshot](https://github.com/HelloMukama/streamline_org_interview/blob/main/question2/emr_streamline_hospital/emr_pest_test_snapshot.png)
