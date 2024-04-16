@@ -16,6 +16,9 @@ beforeEach(function () {
         'edit' => 'patients.edit.pest',
         'update' => 'patients.update.pest',
         'destroy' => 'patients.destroy.pest',
+        'trashed' => 'patients.trashed.pest',
+        'restore' => 'patients.restore.pest',
+        'restoreAll' => 'patients.restoreAll.pest',
     ];
 });
 
@@ -93,8 +96,8 @@ it('can restore a patient', function () {
     $patient = Patient::factory()->create();
     $patient->delete();
 
-    $response = $this->post(route('patients.restore', $patient->id));
-    $response->assertRedirect(route('patients.trashed'));
+    $response = $this->post(route($this->routeNames['restore'], $patient->id));
+    $response->assertRedirect($this->routeNames['trashed']);
     $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
 });
 
@@ -102,8 +105,8 @@ it('can restore all patients', function () {
     $trashedPatients = Patient::factory()->count(3)->create();
     Patient::destroy($trashedPatients->pluck('id'));
 
-    $response = $this->post(route('patients.restoreAll'));
-    $response->assertRedirect(route('patients.index'));
+    $response = $this->post(route($this->routeNames['restoreAll']));
+    $response->assertRedirect($this->routeNames['index']);
 
     foreach ($trashedPatients as $patient) {
         $this->assertDatabaseHas('patients', ['id' => $patient->id, 'deleted_at' => null]);
