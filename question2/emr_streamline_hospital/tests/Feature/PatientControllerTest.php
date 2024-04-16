@@ -46,7 +46,7 @@ it('can store a new patient', function () {
 
     $response = $this->post(route($this->routeNames['store']), $patientData);
     $response->assertRedirect(route($this->routeNames['index']));
-    $this->assertDatabaseHas('patients', $patientData); // Assuming your patient table is named 'patients'
+    $this->assertDatabaseHas('patients', $patientData);
 });
 
 it('can show a patient', function () {
