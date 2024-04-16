@@ -1,0 +1,152 @@
+// AUTHOR: NTARYEBWAMUKAMA JEDIDIAH
+// ntaryebwa.mukama@gmail.com
+
+
+
+------------------- QUESTION 2 -------------------------------------
+below is the way to run the system after cloning / pulling it from github
+
+the steps assume that your clone shall be in the htdocs directory of xampp
+
+
+
+
+--------------- Setup of the Project --------------------------------
+copy the '.env.example' file and rename the copy to '.env'
+You won't need to change anything as the contents of your new .env are good to go
+The 'APP_KEY' therein is fine for Development as well
+
+the system is tested with the mysql database, and so for that matter, make sure you create a corresponding directory with that in your .env configurations
+
+-- install the composer packages
+run
+composer install
+composer update
+
+open a new terminal or terminal tab, in the same directory as your artisan file and run
+npm install
+npm run dev
+leave this terminal open
+
+
+
+
+---------------- Running your Migrations -------------------------------
+Go to PHPmyadmin and create 2 databaseses- 'emr' and 'emr_pest'
+Maintain the .env database name as 'emr'.
+We'll use 'emr_pest' later when running tests
+
+open another terminal and run the next commands as follows
+-- run the migrations to create the corresponding tables in the db (emr)
+
+for reference, the root directory of the project contains a db schema that is guiding the implementation of the system
+the file is named 'emr_dbschema.sql'
+
+run
+php artisan migrate
+
+--- to get some sample data in the database for starters
+php artisan db:seed
+
+open a third terminal or terminal tab and run
+php artisan serve
+
+
+
+
+------------------- The Apache and MSQL Servers ------------------------
+start your xampp, wampp, or lampp 'apache' and 'mysql' servers
+
+
+At this point my assumption is that;
+the directory where your laravel code is, is in your htdocs of a xampp,wampp or lampp installation
+you have npm running dev and vite
+you have the php artisan server running
+and you have apache and mysql running
+
+
+
+
+-------------------- The Web Application --------------------------------
+once you have those set, open your browser and go to 
+127.0.0.1:8000 which must be the same as the url and port that your artisan server is serving the application at
+
+go to register
+register as a user / staff in the system, then login with your new credentials
+
+OR
+use a user that was created by default when you ran artisan db:seed above
+email: johndoe@example.com, password: 12345678
+
+after login, test out the system
+If you want to test out logins with different users,
+use the corresponding emails in the users' table all with the password '12345678'
+
+test out other functionalities too
+
+
+
+
+-------------------- Running the Pest tests -----------------------------
+
+Before running tests, be informed that--
+--the test file is using the Patient Factory to generate sample records
+which means that some results may randomly be duplicated.
+
+therefore, in order to avoid this duplication, go to your .env file and
+alter the 'DB_DATABASE' from your 'emr' to 'emr_pest'
+
+subsequent tests you'd just have to switch to this new 'DB_DATABASE' inside .env for testing
+
+-- Assuming your new db is set, create the migration tables
+run
+php artisan migrate
+or
+php artisan migrate:fresh
+
+At this point, 'emr' has the same tables as 'emr_pest'
+
+Time to run the Pest tests. You can run the tests in a UNIX Terminal or Windows Powershell
+with
+php artisan test --filter PatientControllerTest
+or
+./vendor/bin/pest tests/Feature/PatientControllerTest.php
+
+
+
+
+-------------------- The API Playground -----------------------------
+
+I did my endpoint tests via Postman
+All api end-points are listed on the web route http://127.0.0.1:8000/api_playground
+You can also choose to run the apis via the following workspace that I personally used.
+The working examples are there as well.
+https://streamlineqns.postman.co/workspace/Team-Workspace~75f2df10-b5ac-4c44-8dbb-20b12c46e915/request/34217247-d5592133-2b5d-4fd5-8512-cad3ca3f92a9
+
+or you can follow the following invite link direct
+https://app.getpostman.com/join-team?invite_code=f621009feaa3c969e2f8684f307a163f&target_code=8c0bae99fecb0b322fbeb01637974fda
+
+In postman in your headers, don't forget to set 'Accept': 'application/json'
+
+After Login, copy the 'access_token',
+go and paste it as the value of 'bearerToken' under global environment variables
+insert it under the 'Current value' column
+Click SAVE
+
+now, proceed to performing crud operations on the 'patients' table with the endpoints below
+
+'POST /api/patients/create',  // create a new patient
+'GET /api/patients/all',  // view all patients
+'GET /api/patients/show/{id}',  // view specific patient
+'PUT /api/patients/{id}/update',  // update a patient
+'DELETE /api/patients/{id}/delete',  // delete specific patient
+'GET /api/patients/trashed/temp',  // View all deleted patients endpoint
+'POST /api/patients/trashed/temp/{id}/restore',  // Restore 1 patient endpoint
+'POST /api/patients/trashed/temp/restore-all',  // Restore all patients endpoint
+
+https://app.getpostman.com/join-team?invite_code=f621009feaa3c969e2f8684f307a163f&target_code=8c0bae99fecb0b322fbeb01637974fda
+
+
+
+
+THANK YOU!

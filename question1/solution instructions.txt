@@ -1,0 +1,7 @@
+// AUTHOR: NTARYEBWAMUKAMA JEDIDIAH
+// ntaryebwa.mukama@gmail.com
+
+
+------------------- QUESTION 1 -------------------------------------
+solution is in a multiline comment string in the directory 'question1'
+

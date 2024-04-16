@@ -1,0 +1,55 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Create Prescription') }}</div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ route('prescriptions.store') }}">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="medical_record_id" class="form-label">{{ __('Medical Record') }}</label>
+                            <select class="form-select" id="medical_record_id" name="medical_record_id" required>
+                                @foreach($medicalRecords as $record)
+                                    <option value="{{ $record->id }}">{{ $record->id }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="drug_id" class="form-label">{{ __('Drug') }}</label>
+                            <select class="form-select" id="drug_id" name="drug_id" required>
+                                @foreach($drugs as $drug)
+                                    <option value="{{ $drug->id }}">{{ $drug->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pharmacist_id" class="form-label">{{ __('Pharmacist') }}</label>
+                            <select class="form-select" id="pharmacist_id" name="pharmacist_id" required>
+                                @foreach($pharmacists as $pharmacist)
+                                    @if ($pharmacist->hasRole('pharmacist'))
+                                        <option value="{{ $pharmacist->id }}">{{ $pharmacist->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="instructions" class="form-label">{{ __('Instructions') }}</label>
+                            <textarea class="form-control" id="instructions" name="instructions" rows="3" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">{{ __('Create Prescription') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

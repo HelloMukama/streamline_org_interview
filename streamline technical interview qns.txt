@@ -1,0 +1,61 @@
+Streamline Laravel Developer Technical Interview
+
+Instructions 
+All questions are compulsory.
+
+QUESTION 1: 
+Please review the following code snippet and provide feedback on its quality, readability, and any potential improvements you would suggest.
+
+function isPrime($number) {
+    if ($number > 2) {
+        return false;
+    }
+    for ($i = 2; $i <= $number; $i++) {
+        if ($number % $i == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+Question 2:
+
+You have been tasked with creating the database schema for an electronic medical record (EMR) system at Stre@mline hospital. It is imperative that this system effectively manages patient information, medical history, lab results, drug prescriptions, and scheduling information. It should also give medical staff members—such as physicians and nurses—the ability to safely access and alter patient records. 
+You are required to create a new Laravel project and create the necessary migrations and models to show the relationships. Create a github repository for your project.
+Ensure that your solution allows for the recovery of patient records once they have been deleted. Your solution should follow a modular approach to facilitate easier code maintenance. User and Patient registration modules are expected. 
+
+The following scenarios sdescribe requirements the schema must take into account:
+
+1. Every time a patient visits the hospital, a new medical record is created for that visit. Every patient is assigned a file number, along with their first and last names, gender, date of birth, phone number, next of kin relationship, and their phone number at registration.
+2. The medical record contains the doctor or nurse who saw them, symptoms recorded, lab tests taken (Like Malaria test, Blood Glucose level test) done, Medical diagnoses, the treatment given and the outcome of the visit (such as whether the patient was admitted, died, referred or discharged).
+------------------------------------
+Each lab test has a name, duration, and results which have to be authenticated by the senior lab technician. During a visit, multiple laboratory tests may be ordered by a doctor for a patient. The lab technician does view all tests ordered, performs them and enters the test results. 
+All diagnoses have a name and an ICD-11 code. A patient is given a primary diagnosis for each hospital visit and may have multiple secondary diagnoses.
+------------------------------------
+A treatment given to a patient consists of a number of drugs as prescribed by the doctor during their hospital visit. Every drug has a name, brand name, form(i.e. Syrup, tablet, ointment, injection etc) and code. Prescriptions can be issued by the hospital or bought elsewhere. The pharmacist does review all incoming prescriptions, they may alter the medication and then issue it to the patient along with the instructions on how to take it.
+------------------------------------
+A patient may be scheduled for more than one follow-up appointment during their hospital visit. Clinical notes, the date and time of the appointment, the clinic the patient is visiting, and the nurse or doctor the patient will see are all included in each appointment.
+Every clinic has its own name e.g. pediatric, eye, antenatal or maternity clinics.
+------------------------------------
+When a patient comes to the hospital for an appointment, this should be noted in the medical record as well as the appointment's status i.e. postponed, brought forward, canceled, started or completed.
+It should be possible for the system to manage several users and requests at once. System users include doctors, nurses, surgeons, lab technicians, administrators etc.
+The database should be able to trace which users created, modified or deleted any records in the system. 
+
+
+
+3. Write the following unit tests using Pest:
+Create, read,update, delete and reactivate for patient registration.
+Create a test for validation checks for patient registration. 
+
+4. Create a secure API with endpoints:- create, read, update, delete, and reactivate at patient registration.
+
+NB: Be sure to consider the data types, relationships between tables, and indexes needed for efficient querying. Feel free to add any other fields or tables that you think will be relevant to help this hospital thrive.
+
+Submission Format:
+Email a link to your GitHub repo to douglas@streamlinehealth.org,
+bright@streamlinehealth.org,rkateregga@streamlinehealth.org and ktimothy@streamlinehealth.org
+
+You should have detailed instructions on running your project in your Github repository.
+
+Wishing you success, and we look forward to seeing your creative solutions.
+
